@@ -10,7 +10,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import projetos.calculator.model.Calculator;
-import projetos.calculator.model.Operator;
 
 
 public class RootPane extends BorderPane {
@@ -43,6 +42,7 @@ public class RootPane extends BorderPane {
         vBoxResult.setPadding(new Insets(20,20,20,20));
         vBoxResult.setSpacing(10);
         vBoxResult.setAlignment(Pos.CENTER_RIGHT);
+
         setTop(vBoxResult);
 
         btnConfig();
@@ -100,7 +100,6 @@ public class RootPane extends BorderPane {
         vBoxButton.setVgrow(hBox4,Priority.ALWAYS);
         vBoxButton.setVgrow(hBox5,Priority.ALWAYS);
         setCenter(vBoxButton);
-        //vBoxButton.setStyle("-fx-background-color: orange");
     }
 
     private void btnConfig() {
@@ -349,7 +348,6 @@ public class RootPane extends BorderPane {
         });
 
         btnPlus.setOnAction(event ->{
-            System.out.println("Aqui + ");
             model.addNewCount(" + ");
             update();
         });
@@ -374,9 +372,15 @@ public class RootPane extends BorderPane {
             update();
         });
 
+        btnPi.setOnAction(event ->{
+            model.addNewCount("Pi");
+            update();
+        });
+
     }
 
     private void update(){
+        lastResult.setText(model.getSecondDisplay());
         result.setText(model.getDisplay());
     }
 }

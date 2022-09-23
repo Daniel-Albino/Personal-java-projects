@@ -1,18 +1,13 @@
 package projetos.calculator.model;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class Calculator {
     private String strCount;
     private String strNumber;
+    private String count1;
     private double lastNumber,tempNumber;
-    private boolean newNumber, firstNumber;
-    private Operator op;
-
+    private boolean newNumber, firstNumber,equal;
     double result;
 
     public Calculator() {
@@ -22,61 +17,83 @@ public class Calculator {
         tempNumber = 0;
         newNumber = true;
         firstNumber = true;
+        equal = false;
+        count1 = "";
         result = 0;
-        op = Operator.none;
     }
 
     public boolean addNewCount(String str){
         if(str.isBlank() || str.length()<1)
             return false;
-        if(newNumber){
+
+        if(equal){
+            strCount = String.valueOf(result);
+            equal = false;
+        }
+        if(str.equals("Pi")){
+            if(newNumber) {
+                strCount += setPi();
+                newNumber = false;
+            }else
+                return false;
+            return true;
+        }
+
+        if(strCount.isBlank())
             if(!Character.isDigit(str.charAt(0)))
                 return false;
-        }
+
         if(Character.isDigit(str.charAt(0))){
-            System.out.println("Str : " + str);
             strCount += str;
-            System.out.println("StrCount: " + strCount);
-            newNumber = false;
+            strNumber = str;
         }else if(!str.equals(" = ")){
-            System.out.println("Str : " + str);
             strCount += str;
-            System.out.println("StrCount: " + strCount);
             newNumber = true;
         }else {
-            count(strCount.split("\\s+"));
-            strNumber = String.valueOf(result);
-            reset();
-            //alterar o valor final e dar reset!
+            strCount += "";
+            if(!count(strCount.split("\\s+")).equals("lenght 0")){
+                strNumber = String.valueOf(result);
+                strCount += " = ";
+
+            }else {
+                result = Double.parseDouble(strCount);
+                strCount = "";
+            }
+
+            equal = true;
         }
+        count1 = strCount;
         return true;
     }
 
-    private void count(String[] splited) {
-        String aux[] = splited;
+    private String count(String[] splited) {
+        String[] aux = splited;
         boolean bol = false;
+        int i = 0;
+        System.out.println(splited.length);
+        if(splited.length == 1) {
+            System.out.println("Aqui!");
+            return "lenght 0";
+        }
         do {
-            aux = divMul(splited);
+            aux = divMul(aux);
+            if(Arrays.equals(aux, splited))
+                break;
             if(aux.length == 0)
-                return;
-            if(!find(aux))
+                return "length = 0";
+            if(aux.length == 1) {
+                result = converter(aux[0]);
                 bol = true;
+            }
         }while (!bol);
         sumSub(aux);
-    }
-
-    private boolean find(String[] aux) {
-
-        for(String s : aux){
-            System.out.println("Aux: " + s);
-            if(s.equals("/") || s.equals("*")){
-                return true;
-            }
-        }
-        return false;
+        return "Result";
     }
 
     private void sumSub(String[] aux){
+        if(aux.length == 1) {
+            return;
+        }
         for(int i = 0;i<aux.length; i++) {
             if (firstNumber) {
                 result += converter(aux[i]);
@@ -113,15 +130,12 @@ public class Calculator {
 
         for(String s : splited){
             if(s.equals("/") || s.equals("*")){
-                //System.out.println("Counter" + counter);
                 double num1, num2;
                 int index1, index2;
                 index1 = counter-1;
                 index2 = counter+1;
-                //System.out.println("counter " + counter + " index1 " + index1 + " index2 " + index2);
                 num1 = converter(splited[index1]);
                 num2 = converter(splited[index2]);
-                //System.out.println(num1 + " " + num2);
                 switch (s) {
                     case "/" -> {
                         count = div(num1,num2);
@@ -134,10 +148,10 @@ public class Calculator {
                 }
             }
             if(finish)
-                break;
+                return newStrCount(counter, splited,count);
             counter++;
         }
-        return newStrCount(counter, splited,count);
+        return splited;
     }
 
     private String[] newStrCount(int counter, String[] splited, double count) {
@@ -147,19 +161,19 @@ public class Calculator {
         }
 
         String[] aux = new String[splited.length - 2];
-        int remainingElements = splited.length - ( counter + 2 );
 
         splited[counter-1] = String.valueOf(count);
 
-        for(int i = 0;i< counter; i++){
+        int i = 0;
+
+        for(;i<counter;i++)
             aux[i] = splited[i];
-        }
 
-        for(int i = counter, j = counter+1;(i < remainingElements && j < splited.length);  i++,j++){
-            aux[i] = splited[j];
-        }
+        int j = i;
+        i+=2;
 
-        //Ver ciclos ou arranjar uma maneira de resolver isto
+        for(;i<splited.length;j++,i++)
+            aux[j] = splited[i];
 
 
         return aux;
@@ -177,8 +191,6 @@ public class Calculator {
         return num;
     }
 
-    //private Map<Integer,Double> countDivMul = new HashMap<>();
-
     private double div(double num1, double num2){
         return num1/num2;
     }
@@ -192,13 +204,17 @@ public class Calculator {
         tempNumber = 0;
         newNumber = true;
         firstNumber = true;
+        equal = false;
         result = 0;
-        op = Operator.none;
     }
 
 
     public String getDisplay() {
         return strNumber;
+    }
+
+    public String getSecondDisplay(){
+        return count1;
     }
 
     public void invertSignal() {
@@ -207,10 +223,10 @@ public class Calculator {
         newNumber = true;
     }
 
-    public void setPi() {
+    public String setPi() {
         tempNumber = Math.PI;
-        strNumber = ""+tempNumber;
-        newNumber = true;
+        String pi = ""+tempNumber;
+        return pi;
     }
 
     public void perc() {
