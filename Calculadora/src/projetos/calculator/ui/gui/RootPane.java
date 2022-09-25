@@ -21,7 +21,7 @@ public class RootPane extends BorderPane {
     String total,auxT;
 
     public RootPane(Calculator calculator){
-        model = new Calculator();
+        model = calculator;
         auxT = "";
         createViews();
         registerHandlers();
